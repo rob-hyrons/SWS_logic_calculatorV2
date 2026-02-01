@@ -1165,6 +1165,7 @@ function calculateSafetyBrakeSelection() {
         return;
     }
 
+    // 1. Filter and Sort Brakes
     const suitableBrakes = safetyBrakeData.filter(brake => {
         const opTorqueKey = Object.keys(brake).find(k => k.toLowerCase().includes('operating torque'));
         const opTorque = parseFloat(brake[opTorqueKey]) || 0;
@@ -1175,8 +1176,13 @@ function calculateSafetyBrakeSelection() {
     });
 
     const select = dom.safetyBrakeSelector;
+    
+    // Store current user selection if valid
+    const currentSelection = select.value;
+    
     select.innerHTML = '';
     
+    // 2. Populate Dropdown
     if (suitableBrakes.length === 0) {
         const option = document.createElement('option');
         option.textContent = "-- No Suitable Safety Brake Found --";
@@ -1185,15 +1191,33 @@ function calculateSafetyBrakeSelection() {
         dom['safety-brake-name'].classList.add('warning-text');
     } else {
         suitableBrakes.forEach((brake, idx) => {
+            // Find the original index in the main data array
+            const originalIndex = safetyBrakeData.indexOf(brake);
             const option = document.createElement('option');
             const opTorqueKey = Object.keys(brake).find(k => k.toLowerCase().includes('operating torque'));
             const opTorque = parseFloat(brake[opTorqueKey]) || 0;
-            option.value = idx;
+            option.value = originalIndex;
             option.textContent = `${brake.Name} (Op Torque: ${opTorque} Nm)`;
             select.appendChild(option);
         });
         
-        const selectedBrake = suitableBrakes[0];
+        // 3. Select the best brake (or keep user selection if valid within filtered list)
+        // Note: For calculation automation, we usually default to the first (smallest suitable)
+        // unless the user manually changed it. 
+        let selectedIndex = select.options[0].value;
+        
+        // Check if previously selected brake is still in the suitable list
+        const optionsArray = Array.from(select.options);
+        if (currentSelection !== "" && optionsArray.some(opt => opt.value === currentSelection)) {
+             select.value = currentSelection;
+             selectedIndex = currentSelection;
+        } else {
+             select.value = selectedIndex;
+        }
+        
+        const selectedBrake = safetyBrakeData[selectedIndex];
+        
+        // 4. Update UI Text
         dom['safety-brake-name'].textContent = selectedBrake.Name;
         dom['safety-brake-name'].classList.remove('warning-text');
         dom['safety-brake-motor-torque'].textContent = motorMaxTorque.toFixed(1);
@@ -1211,7 +1235,16 @@ function calculateSafetyBrakeSelection() {
             imageDisplay.src = safetyBrakeImageMap.get(brakeName); imageContainer.style.display = 'block';
         } else { imageContainer.style.display = 'none'; }
     }
-}
+
+    // 5. CRITICAL FIX: Re-draw the Axle Graphic
+    // Since the brake shaft size is now known/updated, we must refresh the axle diagram
+    // to ensure the Right Hand Shaft (for chain/tubular) matches this new value.
+    const currentAxleIndex = dom.axleType.value;
+    if (currentAxleIndex !== "" && axleData[currentAxleIndex]) {
+        const collarSize = parseFloat(dom.collarSize.value) || 0;
+        drawAxleCrossSection(axleData[currentAxleIndex], collarSize);
+    }
+
 
 function calculateMotorRecommendation(totalWeightKgs, lath, axle, travelHeight, curtainWidth) {
     if (!lath || !axle || !travelHeight || travelHeight <= 0 || totalWeightKgs <= 0) {
@@ -2913,3 +2946,4 @@ function downloadCsv(data) {
     document.body.appendChild(link);
     link.click();
 }
+
