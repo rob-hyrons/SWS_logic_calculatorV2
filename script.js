@@ -2139,7 +2139,7 @@ function drawEndplateGraphic(endplate, coilDiameter, axle, lath, numLaths) {
         clearanceText.textContent = `${clearance.toFixed(1)} mm`; svg.appendChild(clearanceText);
     }
     container.appendChild(svg);
-}
+
 
 function drawAxleCrossSection(axle, collarSize = 0) {
     const container = dom['axle-cross-section-container']; 
