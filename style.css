@@ -1,0 +1,214 @@
+/* --- Base Styles --- */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    margin: 0;
+    padding: 2em;
+}
+
+#logo-image {
+    position: absolute;
+    top: 2em;
+    right: 2em;
+    width: 10vw;
+    max-width: 150px;
+    height: auto;
+    z-index: 10;
+}
+
+.container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 1000px;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+}
+
+.content-area {
+    padding: 2em;
+    flex-grow: 1;
+    border-left: 1px solid #dee2e6;
+    overflow-x: hidden;
+}
+
+h1 { color: #1a1a1a; text-align: center; margin-bottom: 1em; }
+h2 { color: #333; border-bottom: 2px solid #eee; padding-bottom: 0.5em; margin-top: 0; }
+
+/* --- Form Layouts --- */
+.form-group { margin-bottom: 1.5em; }
+.form-row { display: flex; gap: 1.5em; margin-bottom: 1em; }
+.form-col { flex: 1; }
+
+label { display: block; margin-bottom: 0.5em; font-weight: 600; }
+
+input[type="number"], 
+input[type="file"], 
+select, 
+input[type="text"] {
+    width: 100%;
+    padding: 0.8em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+input[type="checkbox"] { width: auto; margin-right: 8px; vertical-align: middle; }
+
+/* --- Vertical Tabs --- */
+.tabs {
+    display: flex;
+    flex-direction: column;
+    background-color: #f1f3f5;
+    flex-shrink: 0;
+    width: 55px;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.tab-button {
+    height: 120px;
+    padding: 0.5em;
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 600;
+    color: #555;
+    border-left: 5px solid transparent;
+    transition: all 0.2s ease-in-out;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    text-align: center;
+}
+
+.tab-button:hover { filter: brightness(90%); }
+.tab-button.active { font-weight: 700; color: #000; border-left-color: #0d6efd; }
+
+/* Tab Colors */
+.tab-button:nth-child(1) { background-color: #e3f2fd; } /* Inputs */
+.tab-button:nth-child(2) { background-color: #e8f5e9; } /* Axle */
+.tab-button:nth-child(3) { background-color: #fff3e0; } /* Motor */
+.tab-button:nth-child(4) { background-color: #fce4ec; } /* Endplate */
+.tab-button:nth-child(5) { background-color: #ede7f6; } /* Brake */
+.tab-button:nth-child(6) { background-color: #e0f7fa; } /* Wicket */
+.tab-button:nth-child(7) { background-color: #fff8e1; } /* Chain */
+.tab-button:nth-child(8) { background-color: #e9ecef; } /* Admin */
+
+.tab-pane { display: none; }
+.tab-pane.active { display: block; animation: fadeIn 0.3s ease; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Results & Warnings --- */
+.results {
+    margin-top: 1.5em;
+    background-color: #f8f9fa;
+    padding: 1.5em;
+    border-radius: 6px;
+    border-left: 5px solid #007bff;
+}
+
+.results h3 { margin-top: 0; color: #0056b3; font-size: 1.2em; }
+.results p { font-size: 1em; margin: 0.5em 0; line-height: 1.4; }
+.results span { font-weight: bold; color: #1a1a1a; }
+
+.warning-text { color: #d93025 !important; font-weight: bold; }
+.width-validation-warning {
+    color: #d93025;
+    font-weight: 500;
+    font-size: 0.85em;
+    margin-top: 0.5em;
+}
+
+#recommendation-box {
+    margin-top: 1em;
+    padding: 1em;
+    background-color: #fffbe6;
+    border: 1px solid #ffe58f;
+    border-radius: 4px;
+    color: #d46b08;
+    font-weight: bold;
+}
+
+/* --- Graphic Containers --- */
+.graph-container, 
+#shutter-graphic-container, 
+#wicket-graphic-container, 
+#width-graphic-container,
+#axle-cross-section-container {
+    margin-top: 1.5em;
+    width: 100%;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    background-color: #fff;
+    overflow: hidden;
+}
+
+/* --- SVG Classes --- */
+.beam-path { stroke: #adb5bd; stroke-width: 2; fill: none; }
+.deflected-path { stroke: #007bff; stroke-width: 4; fill: none; transition: d 0.3s ease; }
+.deflected-path.warning { stroke: #d93025; }
+.axis-line { stroke: #ced4da; stroke-width: 1; }
+.torque-bar { fill: #007bff; transition: fill 0.2s; }
+.torque-bar:hover { fill: #0056b3; }
+.graph-text { font-size: 12px; fill: #343a40; text-anchor: middle; }
+.graph-data-label { font-size: 10px; fill: #666; text-anchor: middle; }
+
+/* Shutter Graphic Classes */
+.shutter-axle-graphic { fill: #6c757d; stroke: #495057; }
+.shutter-lath-graphic { fill: #e9ecef; stroke: #adb5bd; stroke-width: 0.5; }
+.shutter-bottomlath-graphic { fill: #ced4da; stroke: #495057; }
+.wicket-door-graphic { fill: rgba(165, 214, 167, 0.6); stroke: #388e3c; stroke-width: 1; }
+.dimension-line { stroke: #343a40; stroke-width: 1; }
+.dimension-text { font-size: 10px; fill: #343a40; }
+
+/* --- Admin Styles --- */
+.admin-section {
+    margin-bottom: 2em;
+    padding: 1.5em;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    background: #fdfdfd;
+}
+
+.admin-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+/* --- Buttons --- */
+#printButton, #importCsvButton, #generateCsvButton {
+    padding: 0.8em 1.5em;
+    font-weight: 600;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#printButton { background: #007bff; color: white; }
+#importCsvButton { background: #28a745; color: white; }
+#generateCsvButton { background: #17a2b8; color: white; width: 100%; }
+
+/* --- Print Media --- */
+@media print {
+    body { background: white; padding: 0; }
+    .tabs, .print-container, #admin-content, .tab-button, #logo-image { display: none !important; }
+    .container { box-shadow: none; border: none; width: 100%; max-width: 100%; }
+    .content-area { border: none; padding: 0; }
+    .tab-pane { display: block !important; page-break-after: always; }
+    .results { border: 1px solid #ccc; }
+}

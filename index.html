@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Shutter Motor Calculator</title>
+    
+    <!-- Link to external CSS -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- External Libraries (Required) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+</head>
+<body>
+    <img src="https://raw.githubusercontent.com/rob-hyrons/SWS_logic_calculator/main/swslogo.svg" alt="SWS Logo" id="logo-image">
+    
+    <div class="container">
+        <!-- Navigation Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" data-tab="inputs-content">Inputs</button>
+            <button class="tab-button" data-tab="axle-content">Axle</button>
+            <button class="tab-button" data-tab="motor-content">Motor</button>
+            <button class="tab-button" data-tab="endplate-content">Endplate</button>
+            <button class="tab-button" data-tab="safety-brake-content">Safety Brake</button>
+            <button class="tab-button" data-tab="wicket-content">Wicket Door</button>
+            <button class="tab-button" data-tab="chain-content">Chain</button>
+            <button class="tab-button" data-tab="admin-content">Admin</button>
+        </div>
+
+        <div class="content-area">
+            <h1>Complete Shutter Calculator</h1>
+            
+            <div class="print-container">
+                <button id="printButton">Print Report to PDF</button>
+            </div>
+
+            <div class="tab-content">
+                <!-- 1. INPUTS TAB -->
+                <div id="inputs-content" class="tab-pane active">
+                    <h2>Shutter Specification</h2>
+                    <div class="form-group" data-admin-label="File Import Status">
+                         <div id="import-status">Attempting to load data from repository...</div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group form-col" data-admin-label="Input Width">
+                            <label for="width">Input Width (mm)</label>
+                            <input type="number" id="width" placeholder="e.g., 3000">
+                            <div id="width-warning" class="width-validation-warning"></div>
+                        </div>
+                        <div class="form-group form-col" data-admin-label="Width Type">
+                            <label for="widthType">Width Type</label>
+                            <select id="widthType">
+                                <option value="clearOpening">Clear Opening</option>
+                                <option value="curtainWidth" selected>Curtain Width</option>
+                                <option value="overall">Overall (Reveal)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group form-col" data-admin-label="Guide Type">
+                            <label for="guideType">Guide Type</label>
+                            <select id="guideType" disabled><option value="">Loading...</option></select>
+                        </div>
+                        <div class="form-group form-col" data-admin-label="Curtain Height">
+                            <label for="height">Curtain Height (Floor to Axle Centre, mm)</label>
+                            <input type="number" id="height" placeholder="e.g., 4000">
+                        </div>
+                    </div>
+                    <div class="form-group" data-admin-label="Additional Axle Width">
+                        <label for="additionalLength">Additional Axle Width (Total, mm)</label>
+                        <input type="number" id="additionalLength" value="20">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group form-col" data-admin-label="Lath Type">
+                            <label for="lathType">Lath Type</label>
+                            <select id="lathType" disabled><option value="">Loading...</option></select>
+                        </div>
+                        <div class="form-group form-col" data-admin-label="Endlock Type">
+                            <label for="endlockType">Endlock Type</label>
+                            <select id="endlockType" disabled><option value="">Loading...</option></select>
+                        </div>
+                    </div>
+                    <div class="form-group" data-admin-label="Custom Lath Option">
+                        <label><input type="checkbox" id="useCustomLath"> Use Custom Lath</label>
+                    </div>
+                    <div id="custom-lath-options" style="display: none;">
+                        <label for="customLathWeight">Custom Weight (kg/m²)</label>
+                        <input type="number" id="customLathWeight">
+                    </div>
+                    <div id="lath-image-container" class="image-display-box" style="display: none;">
+                        <img id="lathImageDisplay" src="" alt="Lath">
+                    </div>
+                    
+                    <div class="results">
+                        <h3>Shutter Details</h3>
+                        <p>Total Shutter Weight: <span id="weight-kg">0.00</span> kgs</p>
+                        <p>Max Required Torque: <span id="max-torque-inputs">0.0</span> Nm</p>
+                        <p>Selected Motor: <span id="motor-name-inputs">N/A</span></p>
+                    </div>
+                    <div id="shutter-graphic-container"></div>
+                    <div id="width-graphic-container"></div>
+                </div>
+
+                <!-- 2. AXLE TAB -->
+                <div id="axle-content" class="tab-pane">
+                    <h2>Axle Deflection Analysis</h2>
+                    <div class="form-group">
+                        <label>Axle Shape</label>
+                        <div class="shape-toggle">
+                            <input type="radio" id="shapeCircular" name="axleShape" value="circular" checked>
+                            <label for="shapeCircular">Circular</label>
+                            <input type="radio" id="shapeOctagonal" name="axleShape" value="octagonal">
+                            <label for="shapeOctagonal">Octagonal</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="axleType">Axle Section</label>
+                        <select id="axleType" disabled><option value="">Loading...</option></select>
+                    </div>
+                    <div id="deflection-graphic-container" style="height: 150px;"></div>
+                    <div id="axle-cross-section-container" style="height: 300px;"></div>
+                    <div class="results">
+                        <p>Calculated Deflection: <span id="axle-deflection">0.00</span> mm</p>
+                        <p id="ratio-paragraph">Deflection Ratio: <span id="deflection-ratio">N/A</span></p>
+                    </div>
+                    <div id="recommendation-box"></div>
+                </div>
+
+                <!-- 3. MOTOR TAB -->
+                <div id="motor-content" class="tab-pane">
+                    <h2>Motor & Torque Analysis</h2>
+                    <div class="form-row">
+                        <div class="form-group form-col">
+                            <label for="motorUsageFilter">Usage Type</label>
+                            <select id="motorUsageFilter" disabled></select>
+                        </div>
+                        <div class="form-group form-col">
+                            <label for="motorMountingType">Mounting Type</label>
+                            <select id="motorMountingType" disabled></select>
+                        </div>
+                    </div>
+                    <div id="torque-graph-container" style="height: 280px;"></div>
+                    <div class="results">
+                        <div class="form-group">
+                            <label for="motorSelector">Select Motor</label>
+                            <select id="motorSelector" disabled></select>
+                        </div>
+                        <div id="motor-image-container" style="display: none;">
+                            <img id="motorImageDisplay" src="" alt="Motor">
+                        </div>
+                        <p>Motor Name: <span id="motor-name">N/A</span></p>
+                        <p>Opening Time: <span id="opening-time">0</span> seconds</p>
+                    </div>
+                </div>
+
+                <!-- 4. ENDPLATE TAB -->
+                <div id="endplate-content" class="tab-pane">
+                    <h2>Endplate Selection</h2>
+                    <div class="form-group">
+                        <label>Material</label>
+                        <input type="radio" id="matSteel" name="material" value="Steel" checked> Steel
+                        <input type="radio" id="matAluminium" name="material" value="Aluminium"> Aluminium
+                    </div>
+                    <div class="results">
+                        <p>Max Coil Diameter: <span id="max-coil-diameter">0.0</span> mm</p>
+                        <p>Selected Plate: <span id="endplate-name">N/A</span></p>
+                    </div>
+                    <div id="endplate-graphic-container"></div>
+                    <div id="endplate-force-diagram-container" style="height: 250px;"></div>
+                </div>
+
+                <!-- 5. SAFETY BRAKE TAB -->
+                <div id="safety-brake-content" class="tab-pane">
+                    <h2>Safety Brake Selection</h2>
+                    <select id="safetyBrakeSelector" disabled></select>
+                    <div id="safety-brake-image-container" style="display:none;">
+                        <img id="safetyBrakeImageDisplay" src="">
+                    </div>
+                    <div class="results">
+                        <p>Brake Name: <span id="safety-brake-name">N/A</span></p>
+                        <p>Capacity: <span id="safety-brake-capacity">N/A</span> Nm</p>
+                    </div>
+                </div>
+
+                <!-- 6. WICKET DOOR TAB -->
+                <div id="wicket-content" class="tab-pane">
+                    <h2>Wicket Door Selection</h2>
+                    <select id="wicketDoorSelector" disabled></select>
+                    <div id="wicket-graphic-container"></div>
+                    <div class="results">
+                        <p>Max Torque with Wicket: <span id="wicket-max-torque">0.0</span> Nm</p>
+                    </div>
+                </div>
+
+                <!-- 7. CHAIN TAB -->
+                <div id="chain-content" class="tab-pane">
+                    <h2>Chain Drive Calculation</h2>
+                    <div class="form-row">
+                        <input type="text" id="chainSizeDisplay" readonly>
+                        <input type="number" id="motorTeeth" readonly>
+                        <input type="number" id="barrelTeeth" readonly>
+                    </div>
+                    <div id="chain-graphic-container" style="height: 300px;"></div>
+                    <div class="results">
+                        <p>Chain Ratio: <span id="chain-ratio">1:1</span></p>
+                        <p>Safety Factor: <span id="chain-safety-factor">N/A</span></p>
+                    </div>
+                </div>
+
+                <!-- 8. ADMIN TAB -->
+                <div id="admin-content" class="tab-pane">
+                    <h2>Admin Controls</h2>
+                    <div class="admin-section">
+                        <h3>Import Logic Data</h3>
+                        <input type="file" id="csvFileInput" accept=".csv">
+                        <button id="importCsvButton">Import CSV</button>
+                    </div>
+                    <div class="admin-section">
+                        <h3>Report Generation</h3>
+                        <button id="generateCsvButton">Download Sizing Report (CSV)</button>
+                    </div>
+                    <div class="admin-section">
+                        <h3>Axle Settings</h3>
+                        <label>Fixity (%)</label>
+                        <input type="number" id="axleFixity" value="20">
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- The Entry Module -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
