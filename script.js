@@ -1,4 +1,3 @@
-```javascript
 // Global Variables
 let lathData = [], axleData = [], motorData = [], bottomLathData = [], safetyBrakeData = [], endplateData = [], wicketData = [], endlockData = [], guideData = [], chainDriveData = [];
 let lathImageMap = new Map();
@@ -13,107 +12,106 @@ let visionCalcs = null;
 // Define dom object globally so functions can access it
 const dom = {};
 
-// --- INITIALIZATION ---
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Map DOM elements
-    ['width', 'widthType', 'guideType', 'additionalLength', 'height', 'lathType', 'bottomLathType', 'axleType', 'friction', 'import-status', 
-        'total-axle-length', 'weight-kg', 'axle-deflection', 'deflection-ratio', 'ratio-paragraph', 
-        'recommendation-box', 'deflection-graphic-container', 'torque-graph-container', 'lath-count', 'laths-to-lift',
-        'max-torque', 'total-revolutions', 'motorMountingType', 'motorVoltageFilter', 'motorManufacturerFilter', 'motorUsageFilter', 'motorManualOverrideFilter', 'motorSelector', 'motor-name', 'motor-torque', 'motor-rpm', 
-        'motor-driveshaft-dia', 'motor-cycles-per-hour',
-        'opening-time', 'motor-torque-line', 'axle-weight', 'axle-material-grade', 'moment-of-inertia', 'total-deflection-weight',
-        'safety-brake-torque', 'safety-brake-name', 'safety-brake-motor-torque',
-        'safetyBrakeSelector', 'shutter-graphic-container', 'safety-brake-driveshaft',
-        'curtain-height-extended', 'curtain-height-compressed', 'endplateSelector', 'matSteel', 'matAluminium', 'endplate-name', 'endplate-size',
-        'endplate-material', 'max-coil-diameter', 'prev-endplate-name', 'prev-endplate-height', 'next-endplate-name', 'next-endplate-height',
-        'width-warning', 'curtain-area', 'lifted-curtain-area', 'printButton', 'wicketDoorSelector', 'wicket-door-name', 'wicket-door-height', 'wicket-door-width',
-        'wicket-graphic-container', 'laths-at-wicket', 'wicket-lath-height', 'wicket-max-torque', 'wicket-torque-graph-container',
-        'addVision', 'vision-slat-options', 'visionLathType', 'visionStartHeight', 'visionPanelHeight', 'axle-safety-factor', 'power-consumed',
-        'powderCoated', 'axle-cross-section-container', 'visionLathImageDisplay', 'safety-brake-capacity', 
-        'safety-brake-image-container', 'safetyBrakeImageDisplay', 'endplate-graphic-container', 'endplate-downward-force', 
-        'endplate-pullout-force', 'endplate-force-diagram-container', 'includeDeflectionInSizing', 'effective-coil-para', 'effective-coil-diameter', 'collarSize',
-        'vision-percentage', 'vision-percentage-para', 'vision-area-m2', 'vision-area-m2-para', 'endlockType', 'endlock-weight',
-        'admin-content', 'tab-content', 'importCsvButton', 'shapeCircular', 'shapeOctagonal', 'collar-size-group', 'torque-weight-kg',
-        'useCustomLath', 'custom-lath-options', 'customLathWeight', 'customTorqueWeight', 'max-torque-inputs', 'motor-name-inputs', 'motor-torque-inputs', 'motor-torque-line-inputs',
-        'width-graphic-container', 'calculated-curtain-width', 'calculated-clear-opening', 'calculated-overall-width', 'axleFixity',
-        'reportLathType', 'reportLathLimit', 'reportLathType2', 'chainSizeDisplay', 'motorTeeth', 'barrelTeeth', 'chainPitch', 
-        'chain-ratio', 'chain-torque-barrel', 'chain-torque-motor', 'chain-tension', 'chain-breaking-load', 'chain-safety-factor', 'chain-graphic-container',
-        'sprocketDiameter', 'plateWheelDiameter', 'chain-tension-n', 'chain-breaking-load-n', 'total-applied-friction',
-        'motor-image-container', 'motorImageDisplay', 'motor-limit-turns', 'motor-limit-warning'
-    ].forEach(id => dom[id] = document.getElementById(id));
+// Map DOM elements immediately (script is at end of body)
+['width', 'widthType', 'guideType', 'additionalLength', 'height', 'lathType', 'bottomLathType', 'axleType', 'friction', 'import-status', 
+    'total-axle-length', 'weight-kg', 'axle-deflection', 'deflection-ratio', 'ratio-paragraph', 
+    'recommendation-box', 'deflection-graphic-container', 'torque-graph-container', 'lath-count', 'laths-to-lift',
+    'max-torque', 'total-revolutions', 'motorMountingType', 'motorVoltageFilter', 'motorManufacturerFilter', 'motorUsageFilter', 'motorManualOverrideFilter', 'motorSelector', 'motor-name', 'motor-torque', 'motor-rpm', 
+    'motor-driveshaft-dia', 'motor-cycles-per-hour',
+    'opening-time', 'motor-torque-line', 'axle-weight', 'axle-material-grade', 'moment-of-inertia', 'total-deflection-weight',
+    'safety-brake-torque', 'safety-brake-name', 'safety-brake-motor-torque',
+    'safetyBrakeSelector', 'shutter-graphic-container', 'safety-brake-driveshaft',
+    'curtain-height-extended', 'curtain-height-compressed', 'endplateSelector', 'matSteel', 'matAluminium', 'endplate-name', 'endplate-size',
+    'endplate-material', 'max-coil-diameter', 'prev-endplate-name', 'prev-endplate-height', 'next-endplate-name', 'next-endplate-height',
+    'width-warning', 'curtain-area', 'lifted-curtain-area', 'printButton', 'wicketDoorSelector', 'wicket-door-name', 'wicket-door-height', 'wicket-door-width',
+    'wicket-graphic-container', 'laths-at-wicket', 'wicket-lath-height', 'wicket-max-torque', 'wicket-torque-graph-container',
+    'addVision', 'vision-slat-options', 'visionLathType', 'visionStartHeight', 'visionPanelHeight', 'axle-safety-factor', 'power-consumed',
+    'powderCoated', 'axle-cross-section-container', 'visionLathImageDisplay', 'safety-brake-capacity', 
+    'safety-brake-image-container', 'safetyBrakeImageDisplay', 'endplate-graphic-container', 'endplate-downward-force', 
+    'endplate-pullout-force', 'endplate-force-diagram-container', 'includeDeflectionInSizing', 'effective-coil-para', 'effective-coil-diameter', 'collarSize',
+    'vision-percentage', 'vision-percentage-para', 'vision-area-m2', 'vision-area-m2-para', 'endlockType', 'endlock-weight',
+    'admin-content', 'tab-content', 'importCsvButton', 'shapeCircular', 'shapeOctagonal', 'collar-size-group', 'torque-weight-kg',
+    'useCustomLath', 'custom-lath-options', 'customLathWeight', 'customTorqueWeight', 'max-torque-inputs', 'motor-name-inputs', 'motor-torque-inputs', 'motor-torque-line-inputs',
+    'width-graphic-container', 'calculated-curtain-width', 'calculated-clear-opening', 'calculated-overall-width', 'axleFixity',
+    'reportLathType', 'reportLathLimit', 'reportLathType2', 'chainSizeDisplay', 'motorTeeth', 'barrelTeeth', 'chainPitch', 
+    'chain-ratio', 'chain-torque-barrel', 'chain-torque-motor', 'chain-tension', 'chain-breaking-load', 'chain-safety-factor', 'chain-graphic-container',
+    'sprocketDiameter', 'plateWheelDiameter', 'chain-tension-n', 'chain-breaking-load-n', 'total-applied-friction',
+    'motor-image-container', 'motorImageDisplay', 'motor-limit-turns', 'motor-limit-warning',
+    'tab-controls-container', 'input-controls-container', 'report-motor-filter-container', 'report-motor-voltage-filter-container', 'report-motor-mounting-filter-container', 'report-motor-usage-filter-container'
+].forEach(id => dom[id] = document.getElementById(id));
 
-    // 2. Setup Tabs
-    const tabButtons = document.querySelectorAll('.tab-button');
-    tabButtons.forEach(button => button.addEventListener('click', () => switchTab(button.dataset.tab)));
+// Setup Tabs
+const tabButtons = document.querySelectorAll('.tab-button');
+tabButtons.forEach(button => button.addEventListener('click', () => switchTab(button.dataset.tab)));
 
-    // 3. Setup Input Listeners
-    ['width', 'widthType', 'guideType', 'additionalLength', 'height', 'friction', 'motorMountingType', 'motorVoltageFilter', 'motorManufacturerFilter', 'motorUsageFilter', 'motorManualOverrideFilter', 'bottomLathType', 'lathType', 'matSteel', 'matAluminium',
-        'visionLathType', 'visionStartHeight', 'visionPanelHeight', 'powderCoated', 'includeDeflectionInSizing', 'collarSize', 'endlockType',
-        'useCustomLath', 'customLathWeight', 'customTorqueWeight', 'axleFixity', 'chainPitch'
-    ].forEach(id => {
-        if (dom[id]) dom[id].addEventListener('input', () => {
-            userSelectedAxleIndex = null; 
-            if (id === 'useCustomLath') {
-                const isChecked = dom.useCustomLath.checked;
-                dom['custom-lath-options'].style.display = isChecked ? 'block' : 'none';
-                dom.lathType.disabled = isChecked;
-            }
-            if (id === 'lathType' && lathData.length > 0) {
-                const selectedLath = lathData[dom.lathType.value];
-                if (selectedLath) {
-                    if (selectedLath['Friction %'] !== undefined) {
-                        dom.friction.value = selectedLath['Friction %'];
-                    }
+// Setup Input Listeners
+['width', 'widthType', 'guideType', 'additionalLength', 'height', 'friction', 'motorMountingType', 'motorVoltageFilter', 'motorManufacturerFilter', 'motorUsageFilter', 'motorManualOverrideFilter', 'bottomLathType', 'lathType', 'matSteel', 'matAluminium',
+    'visionLathType', 'visionStartHeight', 'visionPanelHeight', 'powderCoated', 'includeDeflectionInSizing', 'collarSize', 'endlockType',
+    'useCustomLath', 'customLathWeight', 'customTorqueWeight', 'axleFixity', 'chainPitch'
+].forEach(id => {
+    if (dom[id]) dom[id].addEventListener('input', () => {
+        userSelectedAxleIndex = null; 
+        if (id === 'useCustomLath') {
+            const isChecked = dom.useCustomLath.checked;
+            dom['custom-lath-options'].style.display = isChecked ? 'block' : 'none';
+            dom.lathType.disabled = isChecked;
+        }
+        if (id === 'lathType' && lathData.length > 0) {
+            const selectedLath = lathData[dom.lathType.value];
+            if (selectedLath) {
+                if (selectedLath['Friction %'] !== undefined) {
+                    dom.friction.value = selectedLath['Friction %'];
                 }
             }
-            updateAllCalculations();
-        });
-    });
-
-    if (dom.addVision) {
-        dom.addVision.addEventListener('change', () => {
-            dom['vision-slat-options'].style.display = dom.addVision.checked ? 'block' : 'none';
-            updateAllCalculations();
-        });
-    }
-
-    ['shapeCircular', 'shapeOctagonal'].forEach(id => {
-        if (dom[id]) dom[id].addEventListener('change', handleShapeChange);
-    });
-
-    if (dom.motorSelector) dom.motorSelector.addEventListener('change', updateSelectedMotorInfo);
-    if (dom.endplateSelector) dom.endplateSelector.addEventListener('change', updateSelectedEndplateInfo);
-    if (dom.safetyBrakeSelector) dom.safetyBrakeSelector.addEventListener('input', updateSelectedSafetyBrakeInfo);
-    if (dom.axleType) dom.axleType.addEventListener('input', handleAxleOverride);
-    if (dom.wicketDoorSelector) dom.wicketDoorSelector.addEventListener('input', updateSelectedWicketInfo);
-    if (dom.printButton) {
-        dom.printButton.addEventListener('click', () => {
-            window.print();
-        });
-    }
-    if (dom.importCsvButton) dom.importCsvButton.addEventListener('click', handleCsvImport);
-
-    // 4. Initialize Admin & Load Data
-    initializeAdminControls();
-    
-    // Auto-load data
-    const excelFileUrl = 'https://raw.githubusercontent.com/rob-hyrons/SWS_logic_calculator/main/Calculation%20Data.xlsx';
-    const statusDiv = document.getElementById('import-status');
-    if(statusDiv) {
-        statusDiv.textContent = 'Loading data from repository...'; statusDiv.style.color = '#555';
-    }
-    
-    fetch(excelFileUrl).then(response => {
-        if (!response.ok) { throw new Error(`Network response was not ok: ${response.statusText}`); }
-        return response.arrayBuffer();
-    }).then(fileData => { processExcelFile(fileData); }).catch(error => {
-        if(statusDiv) {
-            statusDiv.textContent = 'Failed to fetch the Excel file from the repository. Please check the console for details.'; 
-            statusDiv.style.color = 'red'; 
         }
-        console.error('There has been a problem with the fetch operation:', error);
+        updateAllCalculations();
     });
 });
+
+if (dom.addVision) {
+    dom.addVision.addEventListener('change', () => {
+        dom['vision-slat-options'].style.display = dom.addVision.checked ? 'block' : 'none';
+        updateAllCalculations();
+    });
+}
+
+['shapeCircular', 'shapeOctagonal'].forEach(id => {
+    if (dom[id]) dom[id].addEventListener('change', handleShapeChange);
+});
+
+if (dom.motorSelector) dom.motorSelector.addEventListener('change', updateSelectedMotorInfo);
+if (dom.endplateSelector) dom.endplateSelector.addEventListener('change', updateSelectedEndplateInfo);
+if (dom.safetyBrakeSelector) dom.safetyBrakeSelector.addEventListener('input', updateSelectedSafetyBrakeInfo);
+if (dom.axleType) dom.axleType.addEventListener('input', handleAxleOverride);
+if (dom.wicketDoorSelector) dom.wicketDoorSelector.addEventListener('input', updateSelectedWicketInfo);
+if (dom.printButton) {
+    dom.printButton.addEventListener('click', () => {
+        window.print();
+    });
+}
+if (dom.importCsvButton) dom.importCsvButton.addEventListener('click', handleCsvImport);
+
+// Initialize Admin & Load Data
+initializeAdminControls();
+
+// Auto-load data
+const excelFileUrl = 'https://raw.githubusercontent.com/rob-hyrons/SWS_logic_calculator/main/Calculation%20Data.xlsx';
+const statusDiv = document.getElementById('import-status');
+if(statusDiv) {
+    statusDiv.textContent = 'Loading data from repository...'; statusDiv.style.color = '#555';
+}
+
+fetch(excelFileUrl).then(response => {
+    if (!response.ok) { throw new Error(`Network response was not ok: ${response.statusText}`); }
+    return response.arrayBuffer();
+}).then(fileData => { processExcelFile(fileData); }).catch(error => {
+    if(statusDiv) {
+        statusDiv.textContent = 'Failed to fetch the Excel file from the repository. Please check the console for details.'; 
+        statusDiv.style.color = 'red'; 
+    }
+    console.error('There has been a problem with the fetch operation:', error);
+});
+
 
 // --- HELPER FUNCTIONS ---
 
@@ -2915,4 +2913,3 @@ function downloadCsv(data) {
     document.body.appendChild(link);
     link.click();
 }
-```
