@@ -1165,7 +1165,6 @@ function calculateSafetyBrakeSelection() {
         return;
     }
 
-    // 1. Filter and Sort Brakes
     const suitableBrakes = safetyBrakeData.filter(brake => {
         const opTorqueKey = Object.keys(brake).find(k => k.toLowerCase().includes('operating torque'));
         const opTorque = parseFloat(brake[opTorqueKey]) || 0;
@@ -1176,13 +1175,8 @@ function calculateSafetyBrakeSelection() {
     });
 
     const select = dom.safetyBrakeSelector;
-    
-    // Store current user selection if valid
-    const currentSelection = select.value;
-    
     select.innerHTML = '';
     
-    // 2. Populate Dropdown
     if (suitableBrakes.length === 0) {
         const option = document.createElement('option');
         option.textContent = "-- No Suitable Safety Brake Found --";
@@ -1191,33 +1185,15 @@ function calculateSafetyBrakeSelection() {
         dom['safety-brake-name'].classList.add('warning-text');
     } else {
         suitableBrakes.forEach((brake, idx) => {
-            // Find the original index in the main data array
-            const originalIndex = safetyBrakeData.indexOf(brake);
             const option = document.createElement('option');
             const opTorqueKey = Object.keys(brake).find(k => k.toLowerCase().includes('operating torque'));
             const opTorque = parseFloat(brake[opTorqueKey]) || 0;
-            option.value = originalIndex;
+            option.value = idx;
             option.textContent = `${brake.Name} (Op Torque: ${opTorque} Nm)`;
             select.appendChild(option);
         });
         
-        // 3. Select the best brake (or keep user selection if valid within filtered list)
-        // Note: For calculation automation, we usually default to the first (smallest suitable)
-        // unless the user manually changed it. 
-        let selectedIndex = select.options[0].value;
-        
-        // Check if previously selected brake is still in the suitable list
-        const optionsArray = Array.from(select.options);
-        if (currentSelection !== "" && optionsArray.some(opt => opt.value === currentSelection)) {
-             select.value = currentSelection;
-             selectedIndex = currentSelection;
-        } else {
-             select.value = selectedIndex;
-        }
-        
-        const selectedBrake = safetyBrakeData[selectedIndex];
-        
-        // 4. Update UI Text
+        const selectedBrake = suitableBrakes[0];
         dom['safety-brake-name'].textContent = selectedBrake.Name;
         dom['safety-brake-name'].classList.remove('warning-text');
         dom['safety-brake-motor-torque'].textContent = motorMaxTorque.toFixed(1);
@@ -1235,16 +1211,7 @@ function calculateSafetyBrakeSelection() {
             imageDisplay.src = safetyBrakeImageMap.get(brakeName); imageContainer.style.display = 'block';
         } else { imageContainer.style.display = 'none'; }
     }
-
-    // 5. CRITICAL FIX: Re-draw the Axle Graphic
-    // Since the brake shaft size is now known/updated, we must refresh the axle diagram
-    // to ensure the Right Hand Shaft (for chain/tubular) matches this new value.
-    const currentAxleIndex = dom.axleType.value;
-    if (currentAxleIndex !== "" && axleData[currentAxleIndex]) {
-        const collarSize = parseFloat(dom.collarSize.value) || 0;
-        drawAxleCrossSection(axleData[currentAxleIndex], collarSize);
-    }
-
+}
 
 function calculateMotorRecommendation(totalWeightKgs, lath, axle, travelHeight, curtainWidth) {
     if (!lath || !axle || !travelHeight || travelHeight <= 0 || totalWeightKgs <= 0) {
@@ -2139,7 +2106,7 @@ function drawEndplateGraphic(endplate, coilDiameter, axle, lath, numLaths) {
         clearanceText.textContent = `${clearance.toFixed(1)} mm`; svg.appendChild(clearanceText);
     }
     container.appendChild(svg);
-
+}
 
 function drawAxleCrossSection(axle, collarSize = 0) {
     const container = dom['axle-cross-section-container']; 
@@ -2155,32 +2122,30 @@ function drawAxleCrossSection(axle, collarSize = 0) {
     const innerDia = outerDia - (2 * wallThick);
 
     // --- 1. GATHER DYNAMIC DATA & APPLY LOGIC ---
-    
     const mountType = (dom.motorMountingType.value || '').toLowerCase();
     const isTubular = mountType.includes('tubular');
     const isChainDrive = mountType.includes('chain');
+
+    // A. Get Motor Shaft Size
+    let motorShaftRaw = parseFloat(dom['motor-driveshaft-dia'].textContent);
+    if (isNaN(motorShaftRaw)) motorShaftRaw = 40; 
     
-    // A. Retrieve Safety Brake Shaft Size (Directly from Data)
-    let brakeShaftValue = 30; // Default fallback
+    // B. Get Safety Brake Shaft Size (Directly from Data)
+    let brakeShaftValue = 0;
     const sbIndex = dom.safetyBrakeSelector.value;
     
-    // Explicitly look up the shaft size from the selected brake object
     if (sbIndex !== "" && safetyBrakeData[sbIndex]) {
         const sb = safetyBrakeData[sbIndex];
-        const dsKey = Object.keys(sb).find(k => k.toLowerCase().includes('driveshaft') || k.toLowerCase().includes('shaft'));
-        if (dsKey) {
-            const val = parseFloat(sb[dsKey]);
-            if (!isNaN(val) && val > 0) {
-                brakeShaftValue = val;
-            }
-        }
+        const dsKey = Object.keys(sb).find(k => k.toLowerCase().includes('driveshaft diameter'));
+        if (dsKey) brakeShaftValue = parseFloat(sb[dsKey]);
     }
+    // Fallback
+    if (!brakeShaftValue || isNaN(brakeShaftValue)) {
+        brakeShaftValue = parseFloat(dom['safety-brake-driveshaft'].textContent);
+    }
+    if (isNaN(brakeShaftValue) || brakeShaftValue === 0) brakeShaftValue = 40;
 
-    // B. Retrieve Motor Shaft Size (Directly from Text or Data)
-    let motorShaftRaw = parseFloat(dom['motor-driveshaft-dia'].textContent);
-    if (isNaN(motorShaftRaw)) motorShaftRaw = 40;
-
-    // C. Determine Shaft Configuration based on User Rules
+    // C. Determine Shaft Configuration
     let leftShaftDia = 40;
     let rightShaftDia = 40;
     let leftLabel = "Motor Shaft";
@@ -2189,30 +2154,31 @@ function drawAxleCrossSection(axle, collarSize = 0) {
 
     if (isTubular) {
         // --- TUBULAR MOTOR ---
-        // Left: No visible shaft (Motor is inside)
         showLeftShaft = false; 
         
-        // Right: Safety Brake Shaft (MUST match brake size)
+        // Right Side: Safety Brake (Use EXACT brake size)
         rightShaftDia = brakeShaftValue;
         rightLabel = "Safety Brake Shaft";
 
     } else if (isChainDrive) {
         // --- CHAIN DRIVE ---
-        // Left: Bearing Shaft (Standard bearing, usually min 30mm)
-        leftShaftDia = 30; // Standard idler size
-        leftLabel = "Bearing Shaft";
-
-        // Right: Safety Brake Shaft (MUST match brake size)
+        
+        // Right Side: Safety Brake (Use EXACT brake size)
         rightShaftDia = brakeShaftValue;
         rightLabel = "Safety Brake Shaft";
 
+        // Left Side: Bearing Shaft (Matches brake size, but MINIMUM 30mm)
+        leftShaftDia = (brakeShaftValue < 30) ? 30 : brakeShaftValue;
+        leftLabel = "Bearing Shaft";
+
     } else {
-        // --- DIRECT DRIVE / FLANGE ---
-        // Left: Motor Shaft (Use motor size)
+        // --- DIRECT DRIVE ---
+        
+        // Left Side: Motor Shaft (Use EXACT motor size)
         leftShaftDia = motorShaftRaw;
         leftLabel = "Motor Shaft";
 
-        // Right: Bearing Shaft (Standard bearing)
+        // Right Side: Bearing Shaft (Matches motor, but MINIMUM 30mm)
         rightShaftDia = (motorShaftRaw < 30) ? 30 : motorShaftRaw;
         rightLabel = "Bearing Shaft";
     }
@@ -2947,5 +2913,3 @@ function downloadCsv(data) {
     document.body.appendChild(link);
     link.click();
 }
-
-
