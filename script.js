@@ -2155,30 +2155,32 @@ function drawAxleCrossSection(axle, collarSize = 0) {
     const innerDia = outerDia - (2 * wallThick);
 
     // --- 1. GATHER DYNAMIC DATA & APPLY LOGIC ---
+    
     const mountType = (dom.motorMountingType.value || '').toLowerCase();
     const isTubular = mountType.includes('tubular');
     const isChainDrive = mountType.includes('chain');
-
-    // A. Get Motor Shaft Size
-    let motorShaftRaw = parseFloat(dom['motor-driveshaft-dia'].textContent);
-    if (isNaN(motorShaftRaw)) motorShaftRaw = 40; 
     
-    // B. Get Safety Brake Shaft Size (Directly from Data)
-    let brakeShaftValue = 0;
+    // A. Retrieve Safety Brake Shaft Size (Directly from Data)
+    let brakeShaftValue = 30; // Default fallback
     const sbIndex = dom.safetyBrakeSelector.value;
     
+    // Explicitly look up the shaft size from the selected brake object
     if (sbIndex !== "" && safetyBrakeData[sbIndex]) {
         const sb = safetyBrakeData[sbIndex];
-        const dsKey = Object.keys(sb).find(k => k.toLowerCase().includes('driveshaft diameter'));
-        if (dsKey) brakeShaftValue = parseFloat(sb[dsKey]);
+        const dsKey = Object.keys(sb).find(k => k.toLowerCase().includes('driveshaft') || k.toLowerCase().includes('shaft'));
+        if (dsKey) {
+            const val = parseFloat(sb[dsKey]);
+            if (!isNaN(val) && val > 0) {
+                brakeShaftValue = val;
+            }
+        }
     }
-    // Fallback
-    if (!brakeShaftValue || isNaN(brakeShaftValue)) {
-        brakeShaftValue = parseFloat(dom['safety-brake-driveshaft'].textContent);
-    }
-    if (isNaN(brakeShaftValue) || brakeShaftValue === 0) brakeShaftValue = 40;
 
-    // C. Determine Shaft Configuration
+    // B. Retrieve Motor Shaft Size (Directly from Text or Data)
+    let motorShaftRaw = parseFloat(dom['motor-driveshaft-dia'].textContent);
+    if (isNaN(motorShaftRaw)) motorShaftRaw = 40;
+
+    // C. Determine Shaft Configuration based on User Rules
     let leftShaftDia = 40;
     let rightShaftDia = 40;
     let leftLabel = "Motor Shaft";
@@ -2187,31 +2189,30 @@ function drawAxleCrossSection(axle, collarSize = 0) {
 
     if (isTubular) {
         // --- TUBULAR MOTOR ---
+        // Left: No visible shaft (Motor is inside)
         showLeftShaft = false; 
         
-        // Right Side: Safety Brake (Use EXACT brake size)
+        // Right: Safety Brake Shaft (MUST match brake size)
         rightShaftDia = brakeShaftValue;
         rightLabel = "Safety Brake Shaft";
 
     } else if (isChainDrive) {
         // --- CHAIN DRIVE ---
-        
-        // Right Side: Safety Brake (Use EXACT brake size)
+        // Left: Bearing Shaft (Standard bearing, usually min 30mm)
+        leftShaftDia = 30; // Standard idler size
+        leftLabel = "Bearing Shaft";
+
+        // Right: Safety Brake Shaft (MUST match brake size)
         rightShaftDia = brakeShaftValue;
         rightLabel = "Safety Brake Shaft";
 
-        // Left Side: Bearing Shaft (Matches brake size, but MINIMUM 30mm)
-        leftShaftDia = (brakeShaftValue < 30) ? 30 : brakeShaftValue;
-        leftLabel = "Bearing Shaft";
-
     } else {
-        // --- DIRECT DRIVE ---
-        
-        // Left Side: Motor Shaft (Use EXACT motor size)
+        // --- DIRECT DRIVE / FLANGE ---
+        // Left: Motor Shaft (Use motor size)
         leftShaftDia = motorShaftRaw;
         leftLabel = "Motor Shaft";
 
-        // Right Side: Bearing Shaft (Matches motor, but MINIMUM 30mm)
+        // Right: Bearing Shaft (Standard bearing)
         rightShaftDia = (motorShaftRaw < 30) ? 30 : motorShaftRaw;
         rightLabel = "Bearing Shaft";
     }
@@ -2946,4 +2947,5 @@ function downloadCsv(data) {
     document.body.appendChild(link);
     link.click();
 }
+
 
