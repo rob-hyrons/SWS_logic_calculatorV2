@@ -1,0 +1,35 @@
+        .graph-container { margin-top: 1.5em; width: 100%; }
+        #endplate-graphic-container, #chain-graphic-container {
+            min-width: 450px; max-width: 550px; margin-left: auto; margin-right: auto;
+        }
+        .beam-path { stroke: #adb5bd; stroke-width: 2; fill: none; }
+        .deflected-path { stroke: #007bff; stroke-width: 4; fill: none; transition: d 0.3s ease-out; }
+        .deflected-path.warning { stroke: #d93025; }
+        .support-symbol { fill: #868e96; stroke: #495057; stroke-width: 1; }
+        .coil-wrap-graphic { fill: none; stroke: #adb5bd; stroke-width: 0.5; }
+        #shutter-graphic-container, #wicket-graphic-container, #width-graphic-container {
+            margin-top: 1.5em; width: 100%; border: 1px solid #e9ecef; border-radius: 4px; background-color: #f8f9fa;
+        }
+        .sprocket-wheel { fill: #e9ecef; stroke: #495057; stroke-width: 1; }
+        .sprocket-tooth { fill: #6c757d; }
+        .chain-path { fill: none; stroke: #343a40; stroke-width: 6; stroke-dasharray: 6,4; stroke-linecap: round; }
+        .chain-path-bg { fill: none; stroke: #adb5bd; stroke-width: 7; }
+        .chain-pitch-circle { fill: none; stroke: #d93025; stroke-width: 0.5; stroke-dasharray: 4,2; }
+        .chain-driveshaft { fill: #e9ecef; stroke: #495057; stroke-width: 2; }
+        .shutter-axle-graphic { fill: #6c757d; stroke: #495057; stroke-width: 0.5; }
+        .shutter-lath-graphic { fill: #e9ecef; stroke: #adb5bd; stroke-width: 0.5; }
+        .shutter-bottomlath-graphic { fill: #ced4da; stroke: #495057; stroke-width: 0.5; }
+        .wicket-door-graphic { fill: #a5d6a7; stroke: #388e3c; stroke-width: 1; }
+        .shutter-vision-lath-graphic { fill: #a7d8f0; stroke: #6bafd2; stroke-width: 0.5; }
+        .endlock-graphic { fill: #000000; }
+        .wind-endlock-graphic { fill: #555555; } 
+        .endplate-box-graphic {
+            fill: rgba(255, 193, 7, 0.2); stroke: #ffc107; stroke-width: 1; stroke-dasharray: 4, 2;
+        }
+        .axle-centerline-graphic { stroke: #d93025; stroke-width: 1; stroke-dasharray: 4, 2; }
+        .dimension-line { stroke: #343a40; stroke-width: 1; }
+        .dimension-text { font-family: sans-serif; font-size: 5px; fill: #343a40; text-anchor: middle; }
+        .width-graphic-label { font-family: sans-serif; font-size: 14px; fill: #343a40; text-anchor: middle; }
+        .width-graphic-value { font-family: sans-serif; font-size: 10px; fill: #555; text-anchor: middle; }
+        .dimension-tick { stroke: #343a40; stroke-width: 1; }
+            .graph-container, #shutter-graphic-container, #wicket-graphic-container, #width-graphic-container { width: 100% !important; max-width: 450px; margin-left: auto; margin-right: auto; page-break-inside: avoid; }

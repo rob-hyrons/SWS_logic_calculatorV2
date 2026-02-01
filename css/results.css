@@ -1,0 +1,20 @@
+        .results {
+            margin-top: 1.5em; background-color: #f8f9fa; padding: 1.5em; border-radius: 6px; border-left: 5px solid #007bff;
+        }
+        .results h3 { margin-top: 0; color: #0056b3; }
+        .results h4 { margin-top: 1em; margin-bottom: 0.5em; color: #495057;}
+        .results p { font-size: 1.1em; margin: 0.5em 0; line-height: 1.5; }
+        .results span { font-weight: bold; color: #1a1a1a; }
+        #import-status { margin-top: 0.5em; font-style: italic; color: #555; }
+        .warning-text, p .warning-text, span.warning-text { color: #d93025 !important; font-weight: bold; }
+        .width-validation-warning {
+            color: #d93025; font-weight: 500; font-size: 0.9em; margin-top: 0.5em; display: none;
+        }
+        #recommendation-box {
+            display: none; margin-top: 1em; padding: 1em; background-color: #fffbe6;
+            border: 1px solid #ffe58f; border-radius: 4px; color: #d46b08; font-weight: bold;
+        }
+        .option-pass { color: #1e8e3e; font-weight: bold; }
+        .option-fail { color: #d93025; }
+            .tabs, .form-group, .print-container, .calculation-explainer, hr, #import-status, #recommendation-box, #admin-content, #logo-image { display: none !important; }
+            .results { border: 1px solid #ccc; border-left: none; page-break-inside: avoid; margin-top: 1em; padding: 1em; }
